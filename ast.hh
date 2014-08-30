@@ -1,6 +1,11 @@
 #pragma once
 
+#include <utility>
+#include <string>
+#include <vector>
+
 #include <boost/variant/recursive_variant.hpp>
+#include <boost/fusion/include/boost_tuple.hpp> 
 
 namespace ast {
 
@@ -82,11 +87,20 @@ struct negate_expr {
     }
 };
 
-struct program {
-    program() {}
-    program(const expression& expr) : expr(expr) {}
+typedef boost::tuple<
+    std::string,
+    std::vector<std::string>
+    > prototype;
 
-    expression expr;
-};
+typedef boost::tuple<
+    prototype, 
+    expression
+    > definition;
+
+typedef boost::variant<
+    nil,
+    expression,
+    definition
+    > program;
 
 }

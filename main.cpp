@@ -30,20 +30,20 @@ int main()
         std::string::const_iterator iter = str.begin();
         std::string::const_iterator end = str.end();
         ast::program ast;
-        ast_printer printer;
+        program_printer printer;
         bool r = phrase_parse(iter, end, prog, space, ast);
 
         if (r && iter == end) {
             std::cout << "-------------------------\n";
             std::cout << "Parsing succeeded\n";
-            printer(ast);
+            boost::apply_visitor(printer, ast);
             std::cout << "\n-------------------------\n";
         }
         else {
             std::string rest(iter, end);
             std::cout << "-------------------------\n";
             std::cout << "Parsing failed\n";
-            std::cout << "stopped at: \": " << rest << "\"\n";
+            std::cout << "stopped at: \"" << rest << "\"\n";
             std::cout << "-------------------------\n";
         }
     }
