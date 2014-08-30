@@ -4,39 +4,44 @@ Compile with gcc4.9.1, llvm3.5, boost1.55
 ```
 Type [q or Q] to quit
 
-def a(b,c) b
+def add(a,b,c) a+b+c
 -------------------------
 Parsing succeeded
 
-::::::::::: PP ::::::::::::
-def a(b,c,) b
+::::: Code => Result ::::::
+def add(a,b,c,) ((a+b)+c)
 ::::::::::: IR ::::::::::::
 ; ModuleID = 'top'
 
-define i64 @a(i64 %b, i64 %c) {
+define i64 @add(i64 %a, i64 %b, i64 %c) {
 entry:
-  ret i64 %b
+  %addtmp = add i64 %a, %b
+  %addtmp1 = add i64 %addtmp, %c
+  ret i64 %addtmp1
 }
 
 -------------------------
-def add(left, right) left + right 
+add(1,2,3)
 -------------------------
 Parsing succeeded
 
-::::::::::: PP ::::::::::::
-def add(left,right,) (left+right)
+::::: Code => Result ::::::
+add(1,2,3,) => 6
+
 ::::::::::: IR ::::::::::::
 ; ModuleID = 'top'
 
-define i64 @a(i64 %b, i64 %c) {
+define i64 @add(i64 %a, i64 %b, i64 %c) {
 entry:
-  ret i64 %b
+  %addtmp = add i64 %a, %b
+  %addtmp1 = add i64 %addtmp, %c
+  ret i64 %addtmp1
 }
 
-define i64 @add(i64 %left, i64 %right) {
+define i64 @toplevel() {
 entry:
-  %addtmp = add i64 %left, %right
-  ret i64 %addtmp
+  %calltmp = call i64 @add(i64 1, i64 2, i64 3)
+  ret i64 %calltmp
 }
 
 -------------------------

@@ -39,11 +39,11 @@ int main()
             std::cout << "-------------------------\n";
             std::cout << "Parsing succeeded\n";
 
-            std::cout << "\n::::::::::: PP ::::::::::::\n";
+            std::cout << "\n::::: Code => Result ::::::\n";
             boost::apply_visitor(printer, ast);
 
-            std::cout << "\n::::::::::: IR ::::::::::::\n";
             boost::apply_visitor(cg, ast);
+            std::cout << "\n::::::::::: IR ::::::::::::\n";
             cg.dump();
             std::cout << "\n-------------------------\n";
         }

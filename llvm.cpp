@@ -1,6 +1,7 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <llvm/Analysis/Verifier.h>
+#include <boost/fusion/tuple/make_tuple.hpp>
 
 #include <iostream>
 
@@ -9,7 +10,16 @@
 namespace qi = boost::spirit::qi;
 
 codegen::codegen() : _builder(getGlobalContext()) {
+    InitializeNativeTarget();
+    
     _module = new Module("top", getGlobalContext());
+    _engine = EngineBuilder(_module).create();
+    _optimizer = new FunctionPassManager(_module);
+    _optimizer->add(createInstructionCombiningPass());
+    _optimizer->add(createReassociatePass());
+    _optimizer->add(createGVNPass());
+    _optimizer->add(createCFGSimplificationPass());
+    _optimizer->doInitialization();
 }
 
 Value* codegen::operator()(int n) { 
@@ -21,8 +31,22 @@ Value* codegen::operator()(std::string const& s) {
     return v ? v : errorv("Unknown variable name");
 }
 
-Value* codegen::operator()(ast::expression const& ast) {
-    boost::apply_visitor(*this, ast.expr);
+Value* codegen::operator()(ast::expression const& expr) {
+    auto proto = boost::make_tuple("toplevel", std::vector<std::string>());
+    ast::definition def = boost::make_tuple(proto, expr);
+    ast::program fake = def;
+    auto fun = boost::apply_visitor(*this, fake);
+
+    std::string errmsg;
+    _engine = EngineBuilder(_module).setErrorStr(&errmsg).create();
+    if (!_engine) {
+        std::cout << "Error:" << errmsg << std::endl;
+        exit(1);
+    }
+    void* fptr = _engine->getPointerToFunction((Function*)fun);
+    int (*fp)() = (int (*)())(intptr_t)fptr;
+    std::cout << " => " << fp() << std::endl;
+    return nullptr;
 }
 
 Value* codegen::operator()(ast::binary_op const& expr) {
@@ -85,5 +109,5 @@ Value* codegen::operator()(ast::definition const& def) {
     _builder.CreateRet(ret);
     verifyFunction(*fun);
 
-    return nullptr;
+    return fun;
 }
