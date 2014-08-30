@@ -83,26 +83,6 @@ struct unary_op {
     expression subject;
 };
 
-expression& expression::operator+=(expression const& rhs) {
-    expr = binary_op('+', expr, rhs);
-    return *this;
-}
-
-expression& expression::operator-=(expression const& rhs) {
-    expr = binary_op('-', expr, rhs);
-    return *this;
-}
-
-expression& expression::operator*=(expression const& rhs) {
-    expr = binary_op('*', expr, rhs);
-    return *this;
-}
-
-expression& expression::operator/=(expression const& rhs) {
-    expr = binary_op('/', expr, rhs);
-    return *this;
-}
-
 struct negate_expr {
     template <typename T>
     struct result { typedef T type; };

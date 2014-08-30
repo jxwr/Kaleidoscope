@@ -9,6 +9,7 @@
 #include "ast.hh"
 #include "grammar.hh"
 #include "visitor.hh"
+#include "llvm.hh"
 
 namespace spirit = boost::spirit;
 namespace qi = spirit::qi;
@@ -21,6 +22,7 @@ int main()
 
     typedef std::string::const_iterator iterator_type;
     grammar::program<iterator_type> prog;
+    codegen cg;
 
     std::string str;
     while (std::getline(std::cin, str)) {
@@ -36,7 +38,13 @@ int main()
         if (r && iter == end) {
             std::cout << "-------------------------\n";
             std::cout << "Parsing succeeded\n";
+
+            std::cout << "\n::::::::::: PP ::::::::::::\n";
             boost::apply_visitor(printer, ast);
+
+            std::cout << "\n::::::::::: IR ::::::::::::\n";
+            boost::apply_visitor(cg, ast);
+            cg.dump();
             std::cout << "\n-------------------------\n";
         }
         else {

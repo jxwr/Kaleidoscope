@@ -1,0 +1,40 @@
+#pragma once
+
+#include <boost/spirit/include/qi.hpp>
+
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+
+#include <iostream>
+
+#include "ast.hh"
+
+using namespace llvm;
+
+namespace qi = boost::spirit::qi;
+
+class codegen {
+public:
+    codegen();
+
+    Value* operator()(qi::info::nil) const {}
+    Value* operator()(int n);
+    Value* operator()(std::string const& s);
+    Value* operator()(ast::expression const& ast);
+    Value* operator()(ast::binary_op const& expr);
+    Value* operator()(ast::unary_op const& expr);
+    Value* operator()(ast::call const& call);
+    Value* operator()(ast::definition const& def);
+
+    Value *errorv(const char *msg) { std::cerr << msg << std::endl; return 0; }
+    void dump() { _module->dump(); }
+public:
+    typedef Value* result_type;
+private:
+    Module* _module;
+    LLVMContext* _context;
+    IRBuilder<> _builder;
+    std::map<std::string, Value*> _named_values;
+};
