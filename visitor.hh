@@ -29,4 +29,9 @@ struct ast_printer {
         boost::apply_visitor(*this, expr.subject.expr);
         std::cout << ')';
     }
+
+    void operator()(program_ast const& prog) const {
+        std::cout << "program:\n";
+        (*this)(prog.expression);
+    }
 };

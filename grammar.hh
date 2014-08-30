@@ -12,8 +12,8 @@ namespace qi = spirit::qi;
 boost::phoenix::function<negate_expr> neg;
 
 template <typename Iterator>
-struct calculator : qi::grammar<Iterator, expression_ast(), ascii::space_type> {
-    calculator() : calculator::base_type(expression) {
+struct expression_grammar : qi::grammar<Iterator, expression_ast(), ascii::space_type> {
+    expression_grammar() : expression_grammar::base_type(expression) {
         using qi::_val;
         using qi::_1;
         using qi::uint_;
@@ -38,8 +38,17 @@ struct calculator : qi::grammar<Iterator, expression_ast(), ascii::space_type> {
             |   ('-' >> factor              [_val = neg(_1)])
             |   ('+' >> factor              [_val = _1])
             ;
-        }
+    }
+    
+    qi::rule<Iterator, expression_ast(), ascii::space_type> expression, term, factor;
+};
 
-    qi::rule<Iterator, expression_ast(), ascii::space_type>
-    expression, term, factor;
+template <typename Iterator>
+struct program_grammar : qi::grammar<Iterator, program_ast(), ascii::space_type> {
+    program_grammar() : program_grammar::base_type(program) {
+        program %= expression;
+    }
+
+    qi::rule<Iterator, program_ast(), ascii::space_type> program;
+    expression_grammar<Iterator> expression;
 };
