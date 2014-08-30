@@ -4,7 +4,7 @@
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_function.hpp>
 
-#include "ast.h"
+#include "ast.hh"
 
 namespace ascii = spirit::ascii;
 namespace qi = spirit::qi;

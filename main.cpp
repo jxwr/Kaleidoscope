@@ -5,10 +5,10 @@
 #include <iostream>
 #include <string>
 
-#include "helper.h"
-#include "ast.h"
-#include "grammar.h"
-#include "visitor.h"
+#include "helper.hh"
+#include "ast.hh"
+#include "grammar.hh"
+#include "visitor.hh"
 
 namespace spirit = boost::spirit;
 namespace qi = spirit::qi;
