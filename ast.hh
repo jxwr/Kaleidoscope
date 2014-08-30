@@ -2,71 +2,73 @@
 
 #include <boost/variant/recursive_variant.hpp>
 
+namespace ast {
+
 struct binary_op;
 struct unary_op;
 struct nil {};
 
-struct expression_ast {
+struct expression {
     typedef
     boost::variant<
         nil,
         unsigned int,
-        boost::recursive_wrapper<expression_ast>,
+        boost::recursive_wrapper<expression>,
         boost::recursive_wrapper<binary_op>,
         boost::recursive_wrapper<unary_op>
         > type;
 
-    expression_ast()
+    expression()
         : expr(nil()) {}
 
     template <typename Expr>
-    expression_ast(Expr const& expr)
+    expression(Expr const& expr)
         : expr(expr) {}
 
-    expression_ast& operator+=(expression_ast const& rhs);
-    expression_ast& operator-=(expression_ast const& rhs);
-    expression_ast& operator*=(expression_ast const& rhs);
-    expression_ast& operator/=(expression_ast const& rhs);
+    expression& operator+=(expression const& rhs);
+    expression& operator-=(expression const& rhs);
+    expression& operator*=(expression const& rhs);
+    expression& operator/=(expression const& rhs);
 
     type expr;
 };
 
 struct binary_op {
     binary_op(char op,
-              expression_ast const& left,
-              expression_ast const& right)
+              expression const& left,
+              expression const& right)
         : op(op), left(left), right(right) {}
 
     char op;
-    expression_ast left;
-    expression_ast right;
+    expression left;
+    expression right;
 };
 
 struct unary_op {
     unary_op(char op,
-             expression_ast const& subject)
+             expression const& subject)
         : op(op), subject(subject) {}
 
     char op;
-    expression_ast subject;
+    expression subject;
 };
 
-expression_ast& expression_ast::operator+=(expression_ast const& rhs) {
+expression& expression::operator+=(expression const& rhs) {
     expr = binary_op('+', expr, rhs);
     return *this;
 }
 
-expression_ast& expression_ast::operator-=(expression_ast const& rhs) {
+expression& expression::operator-=(expression const& rhs) {
     expr = binary_op('-', expr, rhs);
     return *this;
 }
 
-expression_ast& expression_ast::operator*=(expression_ast const& rhs) {
+expression& expression::operator*=(expression const& rhs) {
     expr = binary_op('*', expr, rhs);
     return *this;
 }
 
-expression_ast& expression_ast::operator/=(expression_ast const& rhs) {
+expression& expression::operator/=(expression const& rhs) {
     expr = binary_op('/', expr, rhs);
     return *this;
 }
@@ -75,14 +77,16 @@ struct negate_expr {
     template <typename T>
     struct result { typedef T type; };
 
-    expression_ast operator()(expression_ast const& expr) const {
-        return expression_ast(unary_op('-', expr));
+    expression operator()(expression const& expr) const {
+        return expression(unary_op('-', expr));
     }
 };
 
-struct program_ast {
-    program_ast() {}
-    program_ast(const expression_ast& expr) : expression(expr) {}
+struct program {
+    program() {}
+    program(const expression& expr) : expr(expr) {}
 
-    expression_ast expression;
+    expression expr;
 };
+
+}

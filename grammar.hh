@@ -6,19 +6,21 @@
 
 #include "ast.hh"
 
+namespace grammar {
+
 namespace ascii = spirit::ascii;
 namespace qi = spirit::qi;
 
-boost::phoenix::function<negate_expr> neg;
+boost::phoenix::function<ast::negate_expr> neg;
 
 template <typename Iterator>
-struct expression_grammar : qi::grammar<Iterator, expression_ast(), ascii::space_type> {
-    expression_grammar() : expression_grammar::base_type(expression) {
+struct expression : qi::grammar<Iterator, ast::expression(), ascii::space_type> {
+    expression() : expression::base_type(expr) {
         using qi::_val;
         using qi::_1;
         using qi::uint_;
 
-        expression =
+        expr =
             term                            [_val = _1]
             >> *(   ('+' >> term            [_val += _1])
                 |   ('-' >> term            [_val -= _1])
@@ -34,21 +36,23 @@ struct expression_grammar : qi::grammar<Iterator, expression_ast(), ascii::space
 
         factor =
             uint_                           [_val = _1]
-            |   '(' >> expression           [_val = _1] >> ')'
+            |   '(' >> expr                 [_val = _1] >> ')'
             |   ('-' >> factor              [_val = neg(_1)])
             |   ('+' >> factor              [_val = _1])
             ;
     }
     
-    qi::rule<Iterator, expression_ast(), ascii::space_type> expression, term, factor;
+    qi::rule<Iterator, ast::expression(), ascii::space_type> expr, term, factor;
 };
 
 template <typename Iterator>
-struct program_grammar : qi::grammar<Iterator, program_ast(), ascii::space_type> {
-    program_grammar() : program_grammar::base_type(program) {
-        program %= expression;
+struct program : qi::grammar<Iterator, ast::program(), ascii::space_type> {
+    program() : program::base_type(prog) {
+        prog %= expr;
     }
 
-    qi::rule<Iterator, program_ast(), ascii::space_type> program;
-    expression_grammar<Iterator> expression;
+    qi::rule<Iterator, ast::program(), ascii::space_type> prog;
+    expression<Iterator> expr;
 };
+
+}

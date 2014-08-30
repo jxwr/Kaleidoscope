@@ -12,11 +12,11 @@ struct ast_printer {
     void operator()(qi::info::nil) const {}
     void operator()(int n) const { std::cout << n; }
 
-    void operator()(expression_ast const& ast) const {
+    void operator()(ast::expression const& ast) const {
         boost::apply_visitor(*this, ast.expr);
     }
 
-    void operator()(binary_op const& expr) const {
+    void operator()(ast::binary_op const& expr) const {
         std::cout << "op:" << expr.op << "(";
         boost::apply_visitor(*this, expr.left.expr);
         std::cout << ", ";
@@ -24,14 +24,14 @@ struct ast_printer {
         std::cout << ')';
     }
 
-    void operator()(unary_op const& expr) const {
+    void operator()(ast::unary_op const& expr) const {
         std::cout << "op:" << expr.op << "(";
         boost::apply_visitor(*this, expr.subject.expr);
         std::cout << ')';
     }
 
-    void operator()(program_ast const& prog) const {
+    void operator()(ast::program const& prog) const {
         std::cout << "program:\n";
-        (*this)(prog.expression);
+        (*this)(prog.expr);
     }
 };

@@ -20,7 +20,7 @@ int main()
     using boost::spirit::ascii::space;
 
     typedef std::string::const_iterator iterator_type;
-    program_grammar<iterator_type> grammar;
+    grammar::program<iterator_type> prog;
 
     std::string str;
     while (std::getline(std::cin, str)) {
@@ -29,9 +29,9 @@ int main()
 
         std::string::const_iterator iter = str.begin();
         std::string::const_iterator end = str.end();
-        program_ast ast;
+        ast::program ast;
         ast_printer printer;
-        bool r = phrase_parse(iter, end, grammar, space, ast);
+        bool r = phrase_parse(iter, end, prog, space, ast);
 
         if (r && iter == end) {
             std::cout << "-------------------------\n";
