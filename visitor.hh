@@ -11,6 +11,7 @@ struct expression_printer {
 
     void operator()(qi::info::nil) const {}
     void operator()(int n) const { std::cout << n; }
+    void operator()(std::string const& s) const { std::cout << s; }
 
     void operator()(ast::expression const& ast) const {
         boost::apply_visitor(*this, ast.expr);
@@ -27,6 +28,17 @@ struct expression_printer {
     void operator()(ast::unary_op const& expr) const {
         std::cout << expr.op << "(";
         boost::apply_visitor(*this, expr.subject.expr);
+        std::cout << ')';
+    }
+
+    void operator()(ast::call const& call) const {
+        std::string args = "";
+        std::cout << call.get<0>() << '(';
+        for (auto& arg : call.get<1>()) {
+            expression_printer printer;
+            printer(arg);
+            std::cout << ',';
+        }
         std::cout << ')';
     }
 };

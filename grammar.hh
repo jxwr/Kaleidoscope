@@ -36,20 +36,28 @@ struct expression : qi::grammar<Iterator, ast::expression(), ascii::space_type> 
 
         factor =
             uint_                           [_val = _1]
+            |   call                        [_val = _1]
+            |   ident                       [_val = _1]
             |   '(' >> expr                 [_val = _1] >> ')'
             |   ('-' >> factor              [_val = neg(_1)])
             |   ('+' >> factor              [_val = _1])
             ;
+
+        call %= ident >> '(' >> -(expr % ',') >> ')';
+
+        ident = qi::lexeme[qi::char_("a-zA-Z") >> *(qi::char_("a-zA-Z0-9_-"))];
     }
     
     qi::rule<Iterator, ast::expression(), ascii::space_type> expr, term, factor;
+    qi::rule<Iterator, std::string(), ascii::space_type> ident;
+    qi::rule<Iterator, ast::call(), ascii::space_type> call;
 };
 
 template <typename Iterator>
 struct prototype : qi::grammar<Iterator, ast::prototype(), ascii::space_type> {
     prototype() : prototype::base_type(proto) {
         ident %= qi::lexeme[qi::char_("a-zA-Z") >> *(qi::char_("a-zA-Z0-9_-"))];
-        proto %= ident >> '(' >> (ident % ',') >> ')';
+        proto %= ident >> '(' >> -(ident % ',') >> ')';
     }
 
     qi::rule<Iterator, ast::prototype(), ascii::space_type> proto;

@@ -13,14 +13,39 @@ struct binary_op;
 struct unary_op;
 struct nil {};
 
+struct expression;
+
+typedef boost::tuple<
+    std::string,
+    std::vector<std::string>
+    > prototype;
+
+typedef boost::tuple<
+    std::string,
+    std::vector<expression>
+    > call;
+
+typedef boost::tuple<
+    prototype, 
+    expression
+    > definition;
+
+typedef boost::variant<
+    nil,
+    expression,
+    definition
+    > program;
+
 struct expression {
     typedef
     boost::variant<
         nil,
         unsigned int,
+        std::string,
         boost::recursive_wrapper<expression>,
         boost::recursive_wrapper<binary_op>,
-        boost::recursive_wrapper<unary_op>
+        boost::recursive_wrapper<unary_op>,
+        boost::recursive_wrapper<call>
         > type;
 
     expression()
@@ -86,21 +111,5 @@ struct negate_expr {
         return expression(unary_op('-', expr));
     }
 };
-
-typedef boost::tuple<
-    std::string,
-    std::vector<std::string>
-    > prototype;
-
-typedef boost::tuple<
-    prototype, 
-    expression
-    > definition;
-
-typedef boost::variant<
-    nil,
-    expression,
-    definition
-    > program;
 
 }
