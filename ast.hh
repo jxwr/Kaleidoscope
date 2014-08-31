@@ -30,6 +30,12 @@ typedef boost::tuple<
     expression
     > definition;
 
+typedef boost::tuple<
+    expression,
+    expression,
+    expression
+    > ifexpr;
+
 typedef boost::variant<
     nil,
     expression,
@@ -42,6 +48,7 @@ struct expression {
         nil,
         unsigned int,
         std::string,
+        boost::recursive_wrapper<ifexpr>,
         boost::recursive_wrapper<expression>,
         boost::recursive_wrapper<binary_op>,
         boost::recursive_wrapper<unary_op>,

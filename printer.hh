@@ -41,6 +41,17 @@ struct expression_printer {
         }
         std::cout << ')';
     }
+
+    void operator()(ast::ifexpr const& expr) const {
+        expression_printer printer;
+        std::cout << "(if ";
+        printer(expr.get<0>());
+        std::cout << " then ";
+        printer(expr.get<1>());
+        std::cout << " else ";
+        printer(expr.get<2>());
+        std::cout << ")";
+    }
 };
 
 struct program_printer {

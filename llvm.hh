@@ -30,7 +30,8 @@ public:
     Value* operator()(qi::info::nil) const {}
     Value* operator()(int n);
     Value* operator()(std::string const& s);
-    Value* operator()(ast::expression const& ast);
+    Value* operator()(ast::expression const& expr);
+    Value* operator()(ast::ifexpr const& expr);
     Value* operator()(ast::binary_op const& expr);
     Value* operator()(ast::unary_op const& expr);
     Value* operator()(ast::call const& call);

@@ -31,6 +31,48 @@ Value* codegen::operator()(std::string const& s) {
     return v ? v : errorv("Unknown variable name");
 }
 
+Value* codegen::operator()(ast::ifexpr const& expr) {
+    auto cond = expr.get<0>();
+    auto then_ = expr.get<1>();
+    auto else_ = expr.get<2>();
+    
+    auto condv = boost::apply_visitor(*this, cond.expr);
+    
+    condv = _builder.CreateICmpNE(condv,
+                                  ConstantInt::get(getGlobalContext(), APInt(64, 0)),
+                                  "ifcond");
+    
+    auto fun = _builder.GetInsertBlock()->getParent();
+    auto thenbb = BasicBlock::Create(getGlobalContext(), "then");
+    auto elsebb = BasicBlock::Create(getGlobalContext(), "else");
+    auto mergebb = BasicBlock::Create(getGlobalContext(), "ifcont");
+
+    _builder.CreateCondBr(condv, thenbb, elsebb);
+
+    // then
+    fun->getBasicBlockList().push_back(thenbb);
+    _builder.SetInsertPoint(thenbb);
+    auto thenv = boost::apply_visitor(*this, then_.expr);
+    _builder.CreateBr(mergebb);
+    thenbb = _builder.GetInsertBlock();
+
+    // else
+    fun->getBasicBlockList().push_back(elsebb);
+    _builder.SetInsertPoint(elsebb);
+    auto elsev = boost::apply_visitor(*this, else_.expr);
+    _builder.CreateBr(mergebb);
+    elsebb = _builder.GetInsertBlock();
+
+    fun->getBasicBlockList().push_back(mergebb);
+    _builder.SetInsertPoint(mergebb);
+
+    auto pn = _builder.CreatePHI(Type::getInt64Ty(getGlobalContext()), 2, "iftmp");
+    pn->addIncoming(thenv, thenbb);
+    pn->addIncoming(elsev, elsebb);
+
+    return pn;
+}
+
 Value* codegen::operator()(ast::expression const& expr) {
     auto proto = boost::make_tuple("toplevel", std::vector<std::string>());
     ast::definition def = boost::make_tuple(proto, expr);
