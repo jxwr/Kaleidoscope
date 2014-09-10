@@ -102,12 +102,19 @@ Value* codegen::operator()(ast::binary_op const& expr) {
         return _builder.CreateSub(L, R, "subtmp");
     case '*':
         return _builder.CreateMul(L, R, "multmp");
+    case '=':
+        return errorv("= operator");;
     }
     return errorv("invalid binary operator");
 }
 
 Value* codegen::operator()(ast::unary_op const& expr) {
     boost::apply_visitor(*this, expr.subject.expr);
+}
+
+Value* codegen::operator()(ast::assign const& expr) {
+    auto rval = boost::apply_visitor(*this, expr.get<1>.expr);
+    return rval;
 }
 
 Value* codegen::operator()(ast::call const& call) {

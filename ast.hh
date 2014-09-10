@@ -26,6 +26,11 @@ typedef boost::tuple<
     > call;
 
 typedef boost::tuple<
+    std::string,
+    expression
+    > assign;
+
+typedef boost::tuple<
     prototype, 
     expression
     > definition;
@@ -49,6 +54,7 @@ struct expression {
         unsigned int,
         std::string,
         boost::recursive_wrapper<ifexpr>,
+        boost::recursive_wrapper<assign>,
         boost::recursive_wrapper<expression>,
         boost::recursive_wrapper<binary_op>,
         boost::recursive_wrapper<unary_op>,

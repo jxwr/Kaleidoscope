@@ -17,6 +17,11 @@ struct expression_printer {
         boost::apply_visitor(*this, ast.expr);
     }
 
+    void operator()(ast::assign const& expr) const {
+        std::cout << expr.get<0>() << " = ";
+        boost::apply_visitor(*this, expr.get<1>().expr);
+    }
+
     void operator()(ast::binary_op const& expr) const {
         std::cout << "(";
         boost::apply_visitor(*this, expr.left.expr);

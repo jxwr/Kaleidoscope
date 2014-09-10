@@ -32,6 +32,7 @@ public:
     Value* operator()(std::string const& s);
     Value* operator()(ast::expression const& expr);
     Value* operator()(ast::ifexpr const& expr);
+    Value* operator()(ast::assign const& expr);
     Value* operator()(ast::binary_op const& expr);
     Value* operator()(ast::unary_op const& expr);
     Value* operator()(ast::call const& call);
@@ -47,5 +48,5 @@ private:
     IRBuilder<> _builder;
     ExecutionEngine* _engine;
     FunctionPassManager* _optimizer;
-    std::map<std::string, Value*> _named_values;
+    std::map<std::string, AllocaInst*> _named_values;
 };

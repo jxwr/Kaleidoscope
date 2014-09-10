@@ -38,6 +38,7 @@ struct expression : qi::grammar<Iterator, ast::expression(), ascii::space_type> 
             uint_                           [_val = _1]
             |   call                        [_val = _1]
             |   ifexpr                      [_val = _1]
+            |   assign                      [_val = _1]
             |   ident                       [_val = _1]
             |   '(' >> expr                 [_val = _1] >> ')'
             |   ('-' >> factor              [_val = neg(_1)])
@@ -50,6 +51,8 @@ struct expression : qi::grammar<Iterator, ast::expression(), ascii::space_type> 
             >> qi::lit("then") >> expr 
             >> qi::lit("else") >> expr;
 
+        assign %= ident >> '=' >> expr;
+
         ident = qi::lexeme[qi::char_("a-zA-Z") >> *(qi::char_("a-zA-Z0-9_-"))];
 
     }
@@ -58,6 +61,7 @@ struct expression : qi::grammar<Iterator, ast::expression(), ascii::space_type> 
     qi::rule<Iterator, std::string(), ascii::space_type> ident;
     qi::rule<Iterator, ast::call(), ascii::space_type> call;
     qi::rule<Iterator, ast::ifexpr(), ascii::space_type> ifexpr;
+    qi::rule<Iterator, ast::assign(), ascii::space_type> assign;
 };
 
 template <typename Iterator>
