@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iterator>
 
+#include "parser.hh"
+
 bool load_file(const char* fname, std::string& source) {
     std::ifstream in(fname, std::ios_base::in);
     if (!in) {
@@ -28,6 +30,23 @@ int main(int argc, char** argv) {
 
     std::cout << "======>" << fname << "<======" << std::endl;
     std::cout << source << std::endl;
+
+    typedef std::string::const_iterator iterator_type;
+    iterator_type iter = source.begin();
+    iterator_type end = source.end();
+
+    ast::expression ast;
+    parser::expression<iterator_type> grammar;
+    parser::skipper<iterator_type> skipper;
+
+    bool success = phrase_parse(iter, end, grammar, skipper, ast);
+    if (!success) {
+        std::string rest(iter, end);
+        std::cout << "-------------------------\n";
+        std::cout << "Parsing failed\n";
+        std::cout << "stopped at: \"" << rest << "\"\n";
+        std::cout << "-------------------------\n";
+    }
     
     return 0;
 }
