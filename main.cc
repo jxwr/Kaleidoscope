@@ -3,6 +3,7 @@
 #include <iterator>
 
 #include "parser.hh"
+#include "printer.hh"
 
 bool load_file(const char* fname, std::string& source) {
     std::ifstream in(fname, std::ios_base::in);
@@ -29,7 +30,6 @@ int main(int argc, char** argv) {
     if (!load_file(fname, source)) return 1;
 
     std::cout << "======>" << fname << "<======" << std::endl;
-    std::cout << source << std::endl;
 
     typedef std::string::const_iterator iterator_type;
     iterator_type iter = source.begin();
@@ -46,6 +46,10 @@ int main(int argc, char** argv) {
         std::cout << "Parsing failed\n";
         std::cout << "stopped at: \"" << rest << "\"\n";
         std::cout << "-------------------------\n";
+    } else {
+        visitor::printer put;
+        put(ast);
+        std::cout << "success" << std::endl;
     }
     
     return 0;
