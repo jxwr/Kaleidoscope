@@ -20,13 +20,13 @@ namespace ast {
     typedef std::string identifier;
 
     typedef boost::variant<
-            nil
-          , bool
-          , unsigned int
-          , identifier
-          , boost::recursive_wrapper<unary>
-          , boost::recursive_wrapper<function_call>
-          , boost::recursive_wrapper<expression>
+          nil
+        , bool
+        , unsigned int
+        , identifier
+        , boost::recursive_wrapper<unary>
+        , boost::recursive_wrapper<function_call>
+        , boost::recursive_wrapper<expression>
         >
     operand;
 
@@ -68,6 +68,22 @@ namespace ast {
         std::list<operation> rest;
     };
 
+
+    inline std::ostream& operator<<(std::ostream& out, nil) {
+        out << "nil"; return out;
+    }
+
+    inline std::ostream& operator<<(std::ostream& out, const identifier& id) {
+        out << id; return out;
+    }
+
+    // statements
+    struct if_statement;
+    struct while_statement;
+    struct statement_list;
+    struct return_statement;
+    struct function;
+
     struct assignment {
         identifier lhs;
         expression rhs;
@@ -78,14 +94,47 @@ namespace ast {
         boost::optional<expression> rhs;
     };
 
-    inline std::ostream& operator<<(std::ostream& out, nil) {
-        out << "nil"; return out;
-    }
+    struct expression_statement {
+        expression expr;
+    };
 
-    inline std::ostream& operator<<(std::ostream& out, const identifier& id) {
-        out << id; return out;
-    }
+    typedef boost::variant<
+          variable_declaration
+        , assignment
+        , expression_statement
+        , boost::recursive_wrapper<if_statement>
+        , boost::recursive_wrapper<while_statement>
+        , boost::recursive_wrapper<return_statement>
+        , boost::recursive_wrapper<statement_list>
+        , boost::recursive_wrapper<function>
+        >
+    statement;
 
+    struct statement_list : std::list<statement> {};
+
+    struct if_statement {
+        expression condition;
+        statement then;
+        boost::optional<statement> else_;
+    };
+
+    struct while_statement {
+        expression condition;
+        statement body;
+    };
+
+    struct return_statement {
+        boost::optional<expression> expr;
+    };
+
+    struct function {
+        std::string return_type;
+        identifier function_name;
+        std::list<identifier> args;
+        statement_list body;
+    };
+
+    typedef std::list<function> function_list;
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -122,4 +171,35 @@ BOOST_FUSION_ADAPT_STRUCT(
     ast::assignment,
     (ast::identifier, lhs)
     (ast::expression, rhs)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ast::expression_statement,
+    (ast::expression, expr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ast::if_statement,
+    (ast::expression, condition)
+    (ast::statement, then)
+    (boost::optional<ast::statement>, else_)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ast::while_statement,
+    (ast::expression, condition)
+    (ast::statement, body)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ast::return_statement,
+    (boost::optional<ast::expression>, expr)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+    ast::function,
+    (std::string, return_type)
+    (ast::identifier, function_name)
+    (std::list<ast::identifier>, args)
+    (ast::statement_list, body)
 )

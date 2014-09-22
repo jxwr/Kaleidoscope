@@ -150,4 +150,152 @@ namespace parser {
             ;
     };
 
+    template <typename Iterator>
+    struct statement : qi::grammar<Iterator, ast::statement_list(), skipper<Iterator>> {
+        statement() : statement::base_type(statement_list) {
+            statement_list =
+                +statement_
+                ;
+
+            statement_ =
+                  variable_declaration
+                | assignment
+                | compound_statement
+                | if_statement
+                | while_statement
+                | return_statement
+                | expression_statement
+                ;
+
+            identifier =
+                   !expr.keywords
+                >> qi::raw[qi::lexeme[(qi::alpha | '_') >> *(qi::alnum | '_')]]
+                ;
+
+            variable_declaration =
+                  qi::lexeme["int" >> !(qi::alnum | '_')]
+                > identifier
+                > -('=' > expr)
+                > ';'
+                ;
+
+            assignment =
+                  identifier
+                > '='
+                > expr
+                > ';'
+                ;
+
+            expression_statement = 
+                   -expr
+                >> ';'
+                ;
+
+            if_statement =
+                  qi::lit("if")
+                > '('
+                > expr
+                > ')'
+                > statement_
+                >
+                -(
+                    qi::lexeme["else" >> !(qi::alnum | '_')]
+                  > statement_
+                  )
+                ;
+
+            while_statement =
+                  qi::lit("while")
+                > '('
+                > expr
+                > ')'
+                > statement_
+                ;
+
+            compound_statement =
+                '{' >> -statement_list >> '}'
+                ;
+
+            return_statement =
+                  qi::lexeme["return" >> !(qi::alnum | '_')]
+                > -expr
+                > ';'
+                ;
+        }
+
+        expression<Iterator> expr;
+
+        qi::rule<Iterator, ast::statement_list(), skipper<Iterator>>
+            statement_list, compound_statement
+            ;
+
+        qi::rule<Iterator, ast::statement(), skipper<Iterator>> 
+            statement_
+            ;
+
+        qi::rule<Iterator, ast::variable_declaration(), skipper<Iterator>> 
+            variable_declaration
+            ;
+
+        qi::rule<Iterator, ast::assignment(), skipper<Iterator>> 
+            assignment
+            ;
+
+        qi::rule<Iterator, ast::if_statement(), skipper<Iterator>> 
+            if_statement
+            ;
+
+        qi::rule<Iterator, ast::while_statement(), skipper<Iterator>> 
+            while_statement
+            ;
+
+        qi::rule<Iterator, ast::return_statement(), skipper<Iterator>> 
+            return_statement
+            ;
+
+        qi::rule<Iterator, ast::expression_statement(), skipper<Iterator>> 
+            expression_statement
+            ;
+
+        qi::rule<Iterator, std::string(), skipper<Iterator>> 
+            identifier
+            ;
+    };
+
+    template <typename Iterator>
+    struct function : qi::grammar<Iterator, ast::function(), skipper<Iterator>> {
+        function() : function::base_type(start) {
+            identifier =
+                   !body.expr.keywords
+                >> qi::raw[qi::lexeme[(qi::alpha | '_') >> *(qi::alnum | '_')]]
+                ;
+
+            argument_list = 
+                -(identifier % ',')
+                ;
+
+            start =
+                  qi::lexeme[(qi::string("void") | qi::string("int")) 
+                             >> !(qi::alnum | '_')]
+                > identifier
+                > '(' > argument_list > ')'
+                > '{' > body > '}'
+                ;
+        }
+
+        statement<Iterator> body;
+
+        qi::rule<Iterator, ast::identifier(), skipper<Iterator>> 
+            identifier
+            ;
+
+        qi::rule<Iterator, std::list<ast::identifier>(), skipper<Iterator>> 
+            argument_list
+            ;
+
+        qi::rule<Iterator, ast::function(), skipper<Iterator>>
+            start
+            ;
+    };
+
 }

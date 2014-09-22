@@ -35,8 +35,8 @@ int main(int argc, char** argv) {
     iterator_type iter = source.begin();
     iterator_type end = source.end();
 
-    ast::expression ast;
-    parser::expression<iterator_type> grammar;
+    ast::statement_list ast;
+    parser::statement<iterator_type> grammar;
     parser::skipper<iterator_type> skipper;
 
     bool success = phrase_parse(iter, end, grammar, skipper, ast);

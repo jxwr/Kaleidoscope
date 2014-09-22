@@ -84,7 +84,12 @@ namespace visitor {
         }
 
         bool operator()(const ast::function_call& x) {
-            std::cout << "function call";
+            std::cout << x.function_name << '(';
+            for (auto& arg : x.args) {
+                (*this)(arg);
+                std::cout << ',';
+            }
+            std::cout << ')';
             return true;
         }
 
@@ -104,7 +109,36 @@ namespace visitor {
             return true;
         }
 
-        bool operator()(ast::variable_declaration const& x) {
+        bool operator()(const ast::variable_declaration& x) {
+            std::cout << x.lhs << "=";
+            return true;
+        }
+
+        bool operator()(const ast::statement& x) {
+            boost::apply_visitor(*this, x);
+        }
+
+        bool operator()(const ast::statement_list& x) {
+            for (const auto& stmt : x) {
+                (*this)(stmt);
+                std::cout << ';' << std::endl;
+            }
+        }
+
+        bool operator()(const ast::expression_statement& x) {
+            (*this)(x.expr);
+        }
+
+        bool operator()(const ast::if_statement& x) {
+        }
+
+        bool operator()(const ast::while_statement& x) {
+        }
+
+        bool operator()(const ast::function& x) {
+        }
+
+        bool operator()(const ast::return_statement& x) {
         }
 
     };
