@@ -60,8 +60,10 @@ namespace visitor {
             default: 
                 return false;
             }
+            std::cout << '(';
             if (!boost::apply_visitor(*this, x.operand_))
                 return false;
+            std::cout << ')';
             return true;
         }
 

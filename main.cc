@@ -47,9 +47,9 @@ int main(int argc, char** argv) {
         std::cout << "stopped at: \"" << rest << "\"\n";
         std::cout << "-------------------------\n";
     } else {
-        visitor::printer put;
-        put(ast);
-        std::cout << "success" << std::endl;
+        visitor::printer print;
+        print(ast);
+        std::cout << std::endl;
     }
     
     return 0;

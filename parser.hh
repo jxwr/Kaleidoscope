@@ -123,15 +123,15 @@ namespace parser {
             additive_expr, multiplicative_expr
             ;
 
-        qi::rule<Iterator, ast::operand(), skipper<Iterator> >
+        qi::rule<Iterator, ast::operand(), skipper<Iterator>>
             unary_expr, primary_expr
             ;
 
-        qi::rule<Iterator, ast::function_call(), skipper<Iterator> >
+        qi::rule<Iterator, ast::function_call(), skipper<Iterator>>
             function_call
             ;
 
-        qi::rule<Iterator, std::list<ast::expression>(), skipper<Iterator> >
+        qi::rule<Iterator, std::list<ast::expression>(), skipper<Iterator>>
             argument_list
             ;
 
